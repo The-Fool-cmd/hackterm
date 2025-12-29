@@ -14,7 +14,9 @@ int main(void) {
 		ui_render();
 
 		if (ui_readline(line, sizeof(line)) > 0) {
-			commands_run(line);
+			if (commands_run(line) == CMD_QUIT) {
+				break;
+			}
 		}
 	}
 
