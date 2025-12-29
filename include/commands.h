@@ -6,6 +6,6 @@ typedef enum {
     CMD_QUIT = 1
 } CommandResult;
 
-CommandResult commands_run(const char *input);
+CommandResult commands_run(GameState *g, const char *input);
 
 #endif

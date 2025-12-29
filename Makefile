@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -Iinclude
 LDFLAGS = -lncurses
 
-SRC = src/main.c src/ui.c src/commands.c
+SRC = src/main.c src/ui.c src/commands.c src/game.c src/server.c
 OBJ = $(SRC:.c=.o)
 
 hackterm: $(OBJ)

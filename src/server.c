@@ -48,4 +48,5 @@ int server_link_bidirectional(Server *a, Server *b) {
     if (server_add_link(a, b->id) != 0) return -1;
     if (server_add_link(b, a->id) != 0) return -1;
    
+    return 0;
 }

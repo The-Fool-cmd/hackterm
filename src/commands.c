@@ -2,10 +2,18 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include "game.h"
 #include "commands.h"
 #include "ui.h"
 
-static void cmd_help(void) {
+static void cmd_help(GameState *g) {
+	(void)g;
+
+	Server *cur = game_get_current_server(g);
+	if (cur) {
+		ui_print("Connected to: %s", cur->name);
+	}
+
 	ui_print("Available commands:");
 	ui_print("  help   - show this message");
 	ui_print("  exit | quit  - quit hackterm");
@@ -26,7 +34,7 @@ static int split_args(char *s, char** argv, int max_args) {
 }
 
 
-CommandResult commands_run(const char *input) {
+CommandResult commands_run(GameState *g, const char *input) {
 	char buffer[1024];
 	char *argv[100];
 
@@ -39,7 +47,7 @@ CommandResult commands_run(const char *input) {
 	}
 
 	if (strcmp(argv[0], "help") == 0) {
-		cmd_help();
+		cmd_help(g);
 		return CMD_OK;
 	}
 
