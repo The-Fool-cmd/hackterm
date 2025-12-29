@@ -1,6 +1,8 @@
 #include <string.h>
+#include <stdlib.h>
 
 #include "server.h"
+#include "game.h"
 
 void server_init(Server *s, ServerId id, const char *name) {
     if (!s) return;
@@ -22,6 +24,20 @@ void server_init(Server *s, ServerId id, const char *name) {
     s->link_count = 0;
     // unused as of now
     s->subnet_id = -1;
+}
+
+ServerId server_generate_random(Server *servers, int *server_count, const char *name) {
+    if (!servers || !server_count || *server_count >= MAX_SERVERS)
+        return SERVER_INVALID_ID;
+    ServerId id = *server_count;
+    server_init(&servers[id], id, name);
+
+    // Random stats for testing
+    servers[id].security = 1 + rand() % 10; // 1-10
+    servers[id].money = 100 + rand() % 900; // 100-999
+
+    (*server_count)++;
+    return id;
 }
 
 int server_add_link(Server *s, ServerId to) {
@@ -49,4 +65,16 @@ int server_link_bidirectional(Server *a, Server *b) {
     if (server_add_link(b, a->id) != 0) return -1;
    
     return 0;
+}
+
+const Server* server_get_linked(
+    const Server *s,
+    const Server *all,
+    int index
+) {
+    if (!s || index < 0 || index >= s->link_count)
+        return NULL;
+
+    ServerId id = s->links[index].to;
+    return &all[id];
 }

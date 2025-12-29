@@ -13,7 +13,6 @@ typedef struct {
     ServerId to;
 } ServerLink;
 
-
 typedef struct {
     ServerId id;
     char name[SERVER_NAME_LEN];
@@ -30,9 +29,16 @@ typedef struct {
     int subnet_id;   // unused for now
 } Server;
 
+const Server* server_get_linked(
+    const Server *s,
+    const Server *all,
+    int index
+);
 
 void server_init(Server *s, ServerId id, const char *name);
 int  server_add_link(Server *s, ServerId to);
+int server_link_bidirectional(Server *a, Server *b);
+ServerId server_generate_random(Server *servers, int *server_count, const char *name);
 
 
 

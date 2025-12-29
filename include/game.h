@@ -21,4 +21,8 @@ void game_shutdown(GameState *g);
 Server *game_get_current_server(GameState *g);
 Server *game_get_server(GameState *g, ServerId id);
 
+/* commands */
+int game_scan(const GameState *g, ServerId *out, int max);
+int game_connect(GameState *g, ServerId to);
+
 #endif

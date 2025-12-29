@@ -15,9 +15,10 @@ static void cmd_help(GameState *g) {
 	}
 
 	ui_print("Available commands:");
-	ui_print("  help   - show this message");
-	ui_print("  exit | quit  - quit hackterm");
-	ui_print("  echo <text...> - print text");
+	ui_print("	help   			- show this message");
+	ui_print("	exit | quit  	- quit hackterm");
+	ui_print("	echo <text...> 	- print text");
+	ui_print("	scan			- list servers connected to the current server");
 }
 
 static int split_args(char *s, char** argv, int max_args) {
@@ -65,6 +66,46 @@ CommandResult commands_run(GameState *g, const char *input) {
 			while (*p == ' ') p++;
 			ui_print("%s", p);
 		}
+		return CMD_OK;
+	}
+
+	if (strcmp(argv[0], "scan") == 0) {
+		ServerId connections[16];
+		int n = game_scan(g, connections, 16);
+
+		ui_print("Connected servers:");
+		for (int i = 0; i < n; i++) {
+			ui_print("  %s", g->servers[connections[i]].name);
+		}
+		return CMD_OK;
+	}
+
+	if (strcmp(argv[0], "connect") == 0) {
+		if (argc < 2) {
+			ui_print("Usage: connect <server_name>");
+			return CMD_OK;
+		}
+
+		// server look up
+		ServerId target = -1;
+		for (int i = 0; i < g->server_count; i++) {
+			if (strcmp(g->servers[i].name, argv[1]) == 0) {
+				target = i;
+				break;
+			}
+		}
+
+		if (target == -1) {
+			ui_print("Server '%s' not found.", argv[1]);
+			return CMD_OK;
+		}
+
+		if (game_connect(g, target)) {
+			ui_print("Connected to %s.", g->servers[target].name);
+		} else {
+			ui_print("Cannot connect to %s: not directly linked.", g->servers[target].name);
+		}
+		
 		return CMD_OK;
 	}
 
