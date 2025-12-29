@@ -105,7 +105,14 @@ CommandResult commands_run(GameState *g, const char *input) {
 		} else {
 			ui_print("Cannot connect to %s: not directly linked.", g->servers[target].name);
 		}
-		
+
+		return CMD_OK;
+	}
+
+	if (strcmp(argv[0], "save") == 0) {
+		const char *file = (argc > 1) ? argv[1] : "save.save";
+		game_save(g, file);
+		ui_print("Game saved to %s", file);
 		return CMD_OK;
 	}
 

@@ -101,3 +101,21 @@ int game_connect(GameState *g, ServerId to) {
     }
     return 0;
 }
+
+void game_save(const GameState *g, const char *filename) {
+    FILE *f = fopen(filename, "w");
+    if (!f) return;
+
+    fprintf(f, "%d %d %d\n", g->server_count, g->home_server, g->current_server);
+
+    for (int i = 0; i < g->server_count; i++) {
+        const Server *s = &g->servers[i];
+        fprintf(f, "%d %s %d %d %d\n", s->id, s->name, s->security, s->money, s->link_count);
+        for (int j = 0; j < s->link_count; j++) {
+            fprintf(f, "%d ", s->links[j].to);
+        }
+        fprintf(f, "\n");
+    }
+
+    fclose(f);
+}
