@@ -39,7 +39,6 @@ void game_generate_network(GameState *g) {
     }
 }
 
-
 void game_init(GameState *g) {
     if (!g) return;
 
@@ -55,6 +54,7 @@ void game_init(GameState *g) {
     game_generate_network(g);
 }
 
+/* Sends the shutdown signal */
 void game_shutdown(GameState *g) {
     (void)g;
     /* nothing yet */
@@ -62,18 +62,21 @@ void game_shutdown(GameState *g) {
 
 /* helper functions*/
 
+/* Returns a pointer to the server with ServerId */
 Server *game_get_server(GameState *g, ServerId id) {
     if (!g) return NULL;
     if (id < 0 || id >= g->server_count) return NULL;
     return &g->servers[id];
 }
 
+/* Returns a pointer to the server the player is connected to */
 Server *game_get_current_server(GameState *g) {
     return game_get_server(g, g->current_server);
 }
 
 /* game commands */
 
+/* Returns an array of linked servers*/
 int game_scan(const GameState *g, ServerId *out, int max) {
     if (!g || !out) return 0;
 

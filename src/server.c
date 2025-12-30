@@ -4,6 +4,8 @@
 #include "server.h"
 #include "game.h"
 
+
+/* Initialises a server with a given name and sets default values */
 void server_init(Server *s, ServerId id, const char *name) {
     if (!s) return;
 
@@ -26,6 +28,7 @@ void server_init(Server *s, ServerId id, const char *name) {
     s->subnet_id = -1;
 }
 
+/* Generates a random server and returns its Id */
 ServerId server_generate_random(Server *servers, int *server_count, const char *name) {
     if (!servers || !server_count || *server_count >= MAX_SERVERS)
         return SERVER_INVALID_ID;
@@ -40,6 +43,7 @@ ServerId server_generate_random(Server *servers, int *server_count, const char *
     return id;
 }
 
+/* Links first server to second */
 int server_add_link(Server *s, ServerId to) {
     if (!s) return -1;
     if (s->link_count >= SERVER_MAX_LINKS) return -1;
@@ -57,6 +61,7 @@ int server_add_link(Server *s, ServerId to) {
     return 0;
 }
 
+/* Untested bidirectional link */
 int server_link_bidirectional(Server *a, Server *b) {
     if (!a || !b) return -1;
     if (a->id == b->id) return -1;
@@ -67,6 +72,7 @@ int server_link_bidirectional(Server *a, Server *b) {
     return 0;
 }
 
+/* Returns an array of asdfasfdasdfa*/
 const Server* server_get_linked(
     const Server *s,
     const Server *all,

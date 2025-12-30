@@ -9,6 +9,7 @@
 int main(void) {
 	// Fixed seed for debugging
 	srand(12345);
+	
 	GameState game;
 	char line[256];
 

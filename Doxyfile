@@ -1,0 +1,39 @@
+# Minimal Doxygen configuration for a C project
+
+# Project info
+PROJECT_NAME           = "HackTerm"
+PROJECT_BRIEF          = "Documentation for HackTerm game"
+PROJECT_NUMBER         = "0.1"
+
+# Input
+INPUT                  = ./include ./src
+FILE_PATTERNS          = *.h *.c
+RECURSIVE              = YES
+
+# Output
+OUTPUT_DIRECTORY       = ./docs
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_LATEX         = NO
+
+# HTML options
+GENERATE_TREEVIEW      = YES
+HTML_DYNAMIC_SECTIONS  = YES
+DISABLE_INDEX          = NO
+FULL_PATH_NAMES        = NO
+
+# Warnings
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+
+# Source code links
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = YES
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+
+# Extract all entities (functions, structs, idk..)
+EXTRACT_ALL        = YES
+EXTRACT_STATIC     = YES
+EXTRACT_PRIVATE    = YES
+
