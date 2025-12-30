@@ -8,10 +8,19 @@
 
 #define MAX_ARGS 100
 
+/**
+ * @brief Represents a shell command.
+ *
+ * Contains the command name, help text, and a pointer to the handler function.
+ *
+ * @param name The name of the command (e.g., "help", "exit").
+ * @param help A short help string describing the command.
+ * @param handler Function pointer to the command's implementation.
+ */
 typedef struct {
-	const char *name;
-	const char *help;
-	CommandResult (*handler)(GameState *g, int argc, char **argv);
+    const char *name;   /**< Command name. */
+    const char *help;   /**< Help text for the command. */
+    CommandResult (*handler)(GameState *g, int argc, char **argv); /**< Command handler function. */
 } Command;
 
 
