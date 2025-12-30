@@ -1,8 +1,8 @@
-# Minimal Doxygen configuration for a C project
+# Doxygen Configuration
 
 # Project info
 PROJECT_NAME           = "HackTerm"
-PROJECT_BRIEF          = "Documentation for HackTerm game"
+PROJECT_BRIEF          = "Documentation for HackTerm"
 PROJECT_NUMBER         = "0.1"
 
 # Input
@@ -32,7 +32,7 @@ INLINE_SOURCES         = YES
 REFERENCED_BY_RELATION = YES
 REFERENCES_RELATION    = YES
 
-# Extract all entities (functions, structs, idk..)
+# Extract all entities
 EXTRACT_ALL        = YES
 EXTRACT_STATIC     = YES
 EXTRACT_PRIVATE    = YES

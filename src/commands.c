@@ -14,10 +14,35 @@ typedef struct {
 	CommandResult (*handler)(GameState *g, int argc, char **argv);
 } Command;
 
-static Command commands[] = {
+
+/**
+ * @brief Show a list of available commands.
+ */
+static CommandResult cmd_help(GameState *g, int argc, char **argv);
+/**
+ * @brief Exit the game.
+ */
+static CommandResult cmd_exit(GameState *g, int argc, char **argv);
+/**
+ * @brief Print text to the UI.
+ */
+static CommandResult cmd_echo(GameState *g, int argc, char **argv);
+/**
+ * @brief List servers connected to the current server.
+ */
+static CommandResult cmd_scan(GameState *g, int argc, char **argv);
+/**
+ * @brief Connect to a server by name.
+ */
+static CommandResult cmd_connect(GameState *g, int argc, char **argv);
+/**
+ * @brief Save the current game state.
+ */
+static CommandResult cmd_save(GameState *g, int argc, char **argv);
+
+static const Command commands[] = {
 	{"help",		"show this message",						cmd_help},
 	{"exit",		"quit hackterm",							cmd_exit},
-	{"quit",		"quit hackterm",							cmd_exit},
 	{"echo",		"print text",								cmd_echo},
 	{"scan",		"list servers connected to current server", cmd_scan},
 	{"connect",		"connect to a linked server",				cmd_connect},
@@ -39,9 +64,8 @@ static int split_args(char *s, char** argv, int max_args) {
 	return argc;
 }
 
-
 static CommandResult cmd_help(GameState *g, int argc, char **argv) {
-	(void)g;
+	(void)g; (void)argc; (void)argv;
 
 	Server *cur = game_get_current_server(g);
 	if (cur) {
@@ -123,7 +147,7 @@ static CommandResult cmd_save(GameState *g, int argc, char **argv) {
     return CMD_OK;
 }
 
-// --- Main dispatcher ---
+// --- Command handler ---
 CommandResult commands_run(GameState *g, const char *input) {
     char buffer[1024];
     char *argv[MAX_ARGS];
