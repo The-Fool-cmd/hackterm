@@ -7,7 +7,7 @@
 void game_generate_network(GameState *g) {
     if (!g) return;
 
-    int num_new_servers = 5; // for demo
+    int num_new_servers = 70; // for demo
     ServerId new_id;
 
     // first server always connects to home

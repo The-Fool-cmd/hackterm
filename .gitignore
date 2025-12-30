@@ -2,3 +2,5 @@ hackterm
 *.o
 *.save
 docs
+lib
+*.html
