@@ -3,7 +3,7 @@
 
 #include "server.h"
 
-#define MAX_SERVERS 128
+#define MAX_SERVERS 512
 
 /**
  * @brief Represents the overall state of the game.
