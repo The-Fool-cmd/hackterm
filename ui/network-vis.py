@@ -43,6 +43,6 @@ def visualize_network(servers, home_server, current_server):
     print("Network saved as server_network.html")
 
 if __name__ == "__main__":
-    savefile = "save.save"
+    savefile = "../save.save"
     servers, home_server, current_server = load_game(savefile)
     visualize_network(servers, home_server, current_server)

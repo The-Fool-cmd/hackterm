@@ -20,13 +20,18 @@ int main(void) {
 	ui_print("Type 'help' to get started.");
 
 	while (1) {
+		/* Render current state */
 		ui_render();
 
+		/* Handle user input, if there is any */
 		if (ui_readline(line, sizeof(line)) > 0) {
 			if (commands_run(&game, line) == CMD_QUIT) {
 				break;
 			}
 		}
+
+		/* Advance simulation*/
+		game_tick(&game);
 	}
 
 	game_shutdown(&game);

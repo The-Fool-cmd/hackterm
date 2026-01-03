@@ -122,3 +122,9 @@ void game_save(const GameState *g, const char *filename) {
 
     fclose(f);
 }
+
+void game_tick(GameState *game) {
+    /* Placeholder*/
+
+    game->tick++;
+}
