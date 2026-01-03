@@ -3,6 +3,7 @@
 
 #include "server.h"
 #include "game.h"
+#include "core_result.h"
 
 
 /* Initialises a server with a given name and sets default values */
@@ -44,32 +45,32 @@ ServerId server_generate_random(Server *servers, int *server_count, const char *
 }
 
 /* Links first server to second */
-int server_add_link(Server *s, ServerId to) {
-    if (!s) return -1;
-    if (s->link_count >= SERVER_MAX_LINKS) return -1;
+CoreResult server_add_link(Server *s, ServerId to) {
+    if (!s) return CORE_ERR_INVALID_ARG;
+    if (s->link_count >= SERVER_MAX_LINKS) return CORE_ERR_UNKNOWN;
 
     // prevent duplicate links
     for (int i = 0; i < s->link_count; i++) {
         if (s->links[i].to == to) {
-            return 0; // already linked
+            return CORE_OK; // already linked, treat as success
         }
     }
 
     s->links[s->link_count].to = to;
     s->link_count++;
 
-    return 0;
+    return CORE_OK;
 }
 
 /* Untested bidirectional link */
-int server_link_bidirectional(Server *a, Server *b) {
-    if (!a || !b) return -1;
-    if (a->id == b->id) return -1;
+CoreResult server_link_bidirectional(Server *a, Server *b) {
+    if (!a || !b) return CORE_ERR_INVALID_ARG;
+    if (a->id == b->id) return CORE_ERR_INVALID_ARG;
 
-    if (server_add_link(a, b->id) != 0) return -1;
-    if (server_add_link(b, a->id) != 0) return -1;
-   
-    return 0;
+    if (server_add_link(a, b->id) != CORE_OK) return CORE_ERR_UNKNOWN;
+    if (server_add_link(b, a->id) != CORE_OK) return CORE_ERR_UNKNOWN;
+
+    return CORE_OK;
 }
 
 /* Returns an array of asdfasfdasdfa*/

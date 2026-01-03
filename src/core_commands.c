@@ -22,7 +22,7 @@ CoreResult core_connect(GameState *g, const char *server_name, ServerId *out_tar
         return CORE_ERR_NOT_FOUND;
     }
 
-    if (game_connect(g, target) != 0) {
+    if (game_connect(g, target) != CORE_OK) {
         if (out_target) *out_target = target;
         return CORE_ERR_NOT_LINKED;
     }

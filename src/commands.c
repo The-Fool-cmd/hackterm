@@ -140,10 +140,13 @@ static CommandResult cmd_connect(GameState *g, int argc, char **argv) {
         return CMD_OK;
     }
 
-    if (game_connect(g, target)) {
+    CoreResult cr = game_connect(g, target);
+    if (cr == CORE_OK) {
         ui_print("Connected to %s.", g->servers[target].name);
-    } else {
+    } else if (cr == CORE_ERR_NOT_LINKED) {
         ui_print("Cannot connect to %s: not directly linked.", g->servers[target].name);
+    } else {
+        ui_print("Cannot connect to %s: error (%d).", g->servers[target].name, cr);
     }
 
     return CMD_OK;

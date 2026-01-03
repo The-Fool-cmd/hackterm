@@ -4,6 +4,7 @@
 
 #include "game.h"
 #include "server.h"
+#include "core_result.h"
 
 void game_generate_network(GameState *g) {
     if (!g) return;
@@ -94,17 +95,17 @@ int game_scan(const GameState *g, ServerId *out, int max) {
     return count;
 }
 
-int game_connect(GameState *g, ServerId to) {
-    if (!g) return 0;
+CoreResult game_connect(GameState *g, ServerId to) {
+    if (!g) return CORE_ERR_INVALID_ARG;
 
     Server *curr = &g->servers[g->current_server];
     for (int i = 0; i < curr->link_count; i++) {
         if (curr->links[i].to == to) {
             g->current_server = to;
-            return 1;
+            return CORE_OK;
         }
     }
-    return 0;
+    return CORE_ERR_NOT_LINKED;
 }
 
 bool game_save(const GameState *g, const char *filename) {

@@ -2,6 +2,7 @@
 #define SERVER_H
 
 #include <stdint.h>
+#include "core_result.h"
 
 #define SERVER_NAME_LEN 32   /**< Maximum length of a server name. */
 #define SERVER_MAX_LINKS 16  /**< Maximum number of links a server can have. */
@@ -75,18 +76,18 @@ void server_init(Server *s, ServerId id, const char *name);
  * 
  * @param s Pointer to the Server.
  * @param to ID of the server to link to.
- * @return 0 on success, non-zero on failure.
+ * @return CORE_OK on success, otherwise a CoreResult error code.
  */
-int server_add_link(Server *s, ServerId to);
+CoreResult server_add_link(Server *s, ServerId to);
 
 /**
  * @brief Adds a bidirectional link between two servers.
  * 
  * @param a Pointer to the first server.
  * @param b Pointer to the second server.
- * @return 0 on success, non-zero on failure.
+ * @return CORE_OK on success, otherwise a CoreResult error code.
  */
-int server_link_bidirectional(Server *a, Server *b);
+CoreResult server_link_bidirectional(Server *a, Server *b);
 
 /* ---------------- RANDOM ---------------- */
 

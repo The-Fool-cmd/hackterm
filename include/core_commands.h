@@ -2,6 +2,7 @@
 #define CORE_COMMANDS_H
 
 #include "game.h"
+#include "core_result.h"
 
 /**
  * @file core_commands.h
@@ -21,15 +22,6 @@
  * @param out_target If non-NULL, will contain the index of the server connected to.
  * @return CORE_OK on success, otherwise a CoreResult error code.
  */
-typedef enum {
-	CORE_OK = 0,           /**< Command succeeded */
-	CORE_ERR_NOT_FOUND,    /**< Server not found */
-	CORE_ERR_NOT_LINKED,   /**< Server not directly linked */
-	CORE_ERR_FILE,         /**< File error */
-	CORE_ERR_INVALID_ARG,  /**< Invalid argument */
-	CORE_ERR_UNKNOWN       /**< Generic failure */
-} CoreResult;
-
 CoreResult core_connect(GameState *g, const char *server_name, ServerId *out_target);
 
 /* --- Scan --- */

@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "server.h"
+#include "core_result.h"
 
 #define MAX_SERVERS 512
 #define MAX_ACTIONS 256
@@ -113,9 +114,9 @@ int game_scan(const GameState *g, ServerId *out, int max);
  * 
  * @param g Pointer to the GameState.
  * @param to ID of the server to connect to.
- * @return 0 on success, non-zero on failure.
+ * @return CORE_OK on success, otherwise a CoreResult error code.
  */
-int game_connect(GameState *g, ServerId to);
+CoreResult game_connect(GameState *g, ServerId to);
 
 /**
  * @brief Saves the current game state to a file.
