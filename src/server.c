@@ -5,20 +5,19 @@
 #include "game.h"
 #include "core_result.h"
 
-
 /* Initialises a server with a given name and sets default values */
-void server_init(Server *s, ServerId id, const char *name) {
+void server_init(Server* s, ServerId id, const char* name) {
     if (!s) return;
 
     s->id = id;
 
     if (name) {
-        strncpy(s->name, name, SERVER_NAME_LEN - 1);
-        s->name[SERVER_NAME_LEN - 1] = '\0';
+	strncpy(s->name, name, SERVER_NAME_LEN - 1);
+	s->name[SERVER_NAME_LEN - 1] = '\0';
     } else {
-        s->name[0] = '\0';
+	s->name[0] = '\0';
     }
-    
+
     // Ser defaults
     s->security = 1;
     s->money = 0;
@@ -30,30 +29,29 @@ void server_init(Server *s, ServerId id, const char *name) {
 }
 
 /* Generates a random server and returns its Id */
-ServerId server_generate_random(Server *servers, int *server_count, const char *name) {
-    if (!servers || !server_count || *server_count >= MAX_SERVERS)
-        return SERVER_INVALID_ID;
+ServerId server_generate_random(Server* servers, int* server_count, const char* name) {
+    if (!servers || !server_count || *server_count >= MAX_SERVERS) return SERVER_INVALID_ID;
     ServerId id = *server_count;
     server_init(&servers[id], id, name);
 
     // Random stats for testing
-    servers[id].security = 1 + rand() % 10; // 1-10
-    servers[id].money = 100 + rand() % 900; // 100-999
+    servers[id].security = 1 + rand() % 10;  // 1-10
+    servers[id].money = 100 + rand() % 900;  // 100-999
 
     (*server_count)++;
     return id;
 }
 
 /* Links first server to second */
-CoreResult server_add_link(Server *s, ServerId to) {
+CoreResult server_add_link(Server* s, ServerId to) {
     if (!s) return CORE_ERR_INVALID_ARG;
     if (s->link_count >= SERVER_MAX_LINKS) return CORE_ERR_UNKNOWN;
 
     // prevent duplicate links
     for (int i = 0; i < s->link_count; i++) {
-        if (s->links[i].to == to) {
-            return CORE_OK; // already linked, treat as success
-        }
+	if (s->links[i].to == to) {
+	    return CORE_OK;  // already linked, treat as success
+	}
     }
 
     s->links[s->link_count].to = to;
@@ -63,7 +61,7 @@ CoreResult server_add_link(Server *s, ServerId to) {
 }
 
 /* Untested bidirectional link */
-CoreResult server_link_bidirectional(Server *a, Server *b) {
+CoreResult server_link_bidirectional(Server* a, Server* b) {
     if (!a || !b) return CORE_ERR_INVALID_ARG;
     if (a->id == b->id) return CORE_ERR_INVALID_ARG;
 
@@ -74,13 +72,8 @@ CoreResult server_link_bidirectional(Server *a, Server *b) {
 }
 
 /* Returns an array of asdfasfdasdfa*/
-const Server* server_get_linked(
-    const Server *s,
-    const Server *all,
-    int index
-) {
-    if (!s || index < 0 || index >= s->link_count)
-        return NULL;
+const Server* server_get_linked(const Server* s, const Server* all, int index) {
+    if (!s || index < 0 || index >= s->link_count) return NULL;
 
     ServerId id = s->links[index].to;
     return &all[id];

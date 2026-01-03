@@ -3,8 +3,8 @@
  * @brief C functions exposed to Lua scripts.
  */
 
-#ifndef SCRIPT_API_H
-#define SCRIPT_API_H
+#ifndef INCLUDE_SCRIPT_API_H_
+#define INCLUDE_SCRIPT_API_H_
 
 #include "game.h"
 
@@ -21,7 +21,7 @@ typedef struct lua_State lua_State;
  * @param g Pointer to the current GameState.
  * @return 0 on success, non-zero on error.
  */
-int script_api_init(GameState *g);
+int script_api_init(GameState* g);
 
 /**
  * @brief Register the script-facing helpers into a Lua state.
@@ -31,11 +31,11 @@ int script_api_init(GameState *g);
  * @param L Lua state to register into.
  * @return 0 on success, non-zero on error.
  */
-int script_api_register(lua_State *L);
+int script_api_register(lua_State* L);
 
 /**
  * @brief Shutdown the script API and release resources.
  */
 void script_api_shutdown(void);
 
-#endif /* SCRIPT_API_H */
+#endif  // INCLUDE_SCRIPT_API_H_

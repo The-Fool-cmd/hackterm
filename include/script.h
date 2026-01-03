@@ -1,5 +1,5 @@
-#ifndef SCRIPT_H
-#define SCRIPT_H
+#ifndef INCLUDE_SCRIPT_H_
+#define INCLUDE_SCRIPT_H_
 
 #include "game.h"
 
@@ -13,7 +13,7 @@
  * @param g Pointer to the current GameState.
  * @return 0 on success, non-zero on failure.
  */
-int script_init(GameState *g);
+int script_init(GameState* g);
 
 /**
  * @brief Shutdown the scripting subsystem and release resources.
@@ -33,7 +33,7 @@ void script_shutdown(void);
  * @param argv Argument vector.
  * @return 1 if the command was handled by scripts, 0 otherwise.
  */
-int script_handle_command(GameState *g, const char *cmd, int argc, char **argv);
+int script_handle_command(GameState* g, const char* cmd, int argc, char** argv);
 
 /**
  * @brief Append a formatted message to the in-memory script log.
@@ -44,7 +44,7 @@ int script_handle_command(GameState *g, const char *cmd, int argc, char **argv);
  *
  * @param fmt printf-style format string.
  */
-void script_log(const char *fmt, ...);
+void script_log(const char* fmt, ...);
 
 /**
  * @brief Retrieve recent script log entries.
@@ -57,7 +57,7 @@ void script_log(const char *fmt, ...);
  * @param max Maximum number of entries to retrieve.
  * @return Number of entries written into `out`.
  */
-int script_log_get_recent(const char **out, int max);
+int script_log_get_recent(const char** out, int max);
 
 /**
  * Execute a script file with arguments.
@@ -83,6 +83,6 @@ int script_log_get_recent(const char **out, int max);
  * @param argv Array of argument strings (not including the script name).
  * @return 0 on success, non-zero on error.
  */
-int script_run(const char *path, int argc, char **argv);
+int script_run(const char* path, int argc, char** argv);
 
-#endif /* SCRIPT_H */
+#endif  // INCLUDE_SCRIPT_H_
