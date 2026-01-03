@@ -4,6 +4,40 @@
 #include "server.h"
 
 #define MAX_SERVERS 512
+#define MAX_ACTIONS 256
+
+/**
+ * @brief An enum for Action types.
+ * 
+ * Contains all the different types of actions.
+ */
+typedef enum {
+    ACTION_CONNECT,
+    ACTION_SCAN,
+    ACTION_DOWNLOAD,
+    ACTION_NOP,
+} ActionType;
+
+/**
+ * @brief Represents an action.
+ * 
+ * Contains all the queued up actions and their count.
+ */
+typedef struct {
+    ActionType type; /**< Type of action. */
+    int target_server; /**< The server the action should run on. */
+    int value; /**< Optional: The value/argument for the action. */
+} Action;
+
+/**
+ * @brief An array of all queued actions.
+ * 
+ * Contains all the queued up actions and their count.
+ */
+typedef struct {
+    Action actions[MAX_ACTIONS]; /**< Array of all queued up actions. */
+    int count; /**< The number of queued up actions. */
+} ActionQueue;
 
 /**
  * @brief Represents the overall state of the game.
@@ -17,6 +51,10 @@ typedef struct {
 
     ServerId current_server; /**< ID of the server the player is currently connected to. */
     ServerId home_server;    /**< ID of the player's home server. */
+
+    int tick;   /**< Current tick number. */
+
+    ActionQueue queue; /**< Queued actions. */
 } GameState;
 
 /* ---------------- LIFECYCLE ---------------- */
@@ -84,7 +122,14 @@ int game_connect(GameState *g, ServerId to);
  * 
  * @param g Pointer to the GameState.
  * @param filename Path to the file where the state should be saved.
+ * @returns 
  */
-void game_save(const GameState *g, const char *filename);
+bool game_save(const GameState *g, const char *filename);
+/**
+ * @brieg Simulates one tick.
+ * 
+ * @param g Pointer to the GameState
+ */
+void game_tick(GameState *g);
 
 #endif /* GAME_H */

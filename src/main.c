@@ -1,18 +1,34 @@
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "game.h"
 #include "ui.h"
 #include "commands.h"
 
+#define TPS 10
+#define MS_PER_TICK (1000 / TPS)
+
+
+
+unsigned long current_time_ms(void) {
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
 
 int main(void) {
+	// Time related variable
+	unsigned long last_tick = current_time_ms();
+
 	// Fixed seed for debugging
 	srand(12345);
-	
+
+	// GameState
 	GameState game;
 	char line[256];
 
+	// Initialise UI and GameState
 	ui_init();
 	game_init(&game);
 
@@ -24,14 +40,19 @@ int main(void) {
 		ui_render();
 
 		/* Handle user input, if there is any */
-		if (ui_readline(line, sizeof(line)) > 0) {
+		if (ui_readline_nonblocking(line, sizeof(line)) > 0) {
 			if (commands_run(&game, line) == CMD_QUIT) {
 				break;
 			}
 		}
 
-		/* Advance simulation*/
-		game_tick(&game);
+		unsigned long now = current_time_ms();
+		if (now - last_tick >= MS_PER_TICK) {
+			/* Advance simulation*/
+			game_tick(&game);
+			last_tick+= MS_PER_TICK;
+		}
+		
 	}
 
 	game_shutdown(&game);

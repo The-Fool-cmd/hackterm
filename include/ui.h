@@ -38,7 +38,7 @@ void ui_print(const char *fmt, ...);
  * @param max Maximum number of characters to read (including null terminator).
  * @return Number of characters read, not including the null terminator.
  */
-int ui_readline(char *buf, int max);
+int ui_readline_nonblocking(char *buf, int max);
 
 /* ---------------- RENDERING ---------------- */
 

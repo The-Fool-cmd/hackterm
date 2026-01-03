@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "game.h"
 #include "server.h"
@@ -49,6 +50,7 @@ void game_init(GameState *g) {
     g->server_count = 1;
     g->home_server = 0;
     g->current_server = 0;
+    g->tick = 0;
 
     // generate demo network
     game_generate_network(g);
@@ -105,26 +107,64 @@ int game_connect(GameState *g, ServerId to) {
     return 0;
 }
 
-void game_save(const GameState *g, const char *filename) {
-    FILE *f = fopen(filename, "w");
-    if (!f) return;
+bool game_save(const GameState *g, const char *filename) {
+    if (!g || !filename) return false;
 
-    fprintf(f, "%d %d %d\n", g->server_count, g->home_server, g->current_server);
+    FILE *f = fopen(filename, "w");
+    if (!f) return false;
+
+    if (fprintf(f, "%d %d %d\n", g->server_count, g->home_server, g->current_server) < 0) {
+        fclose(f);
+        return false;
+    }
 
     for (int i = 0; i < g->server_count; i++) {
         const Server *s = &g->servers[i];
-        fprintf(f, "%d %s %d %d %d\n", s->id, s->name, s->security, s->money, s->link_count);
-        for (int j = 0; j < s->link_count; j++) {
-            fprintf(f, "%d ", s->links[j].to);
+
+        if(fprintf(f, "%d %s %d %d %d\n", s->id, s->name, s->security, s->money, s->link_count) < 0) {
+            fclose(f);
+            return false;
         }
-        fprintf(f, "\n");
+        for (int j = 0; j < s->link_count; j++) {
+            if(fprintf(f, "%d ", s->links[j].to) < 0) {
+                fclose(f);
+                return false;
+            }
+        }
+        if(fprintf(f, "\n") < 0) {
+            fclose(f);
+            return false;
+        }
+        
     }
 
     fclose(f);
+    return true;
 }
 
-void game_tick(GameState *game) {
+void game_tick(GameState *g) {
     /* Placeholder*/
+    g->tick++;
+}
 
-    game->tick++;
+void action_queue_push(GameState *g, Action a) {
+    if (g->queue.count < MAX_ACTIONS) {
+        g->queue.actions[g->queue.count++] = a;
+    } else {
+        // Error, reached max actions
+        printf("[debug] action queue full, action dropped!");
+    }
+}
+
+Action action_queue_pop(GameState *g) {
+    Action a = { .type = ACTION_NOP};
+    if (g->queue.count == 0) return a;
+
+    a = g->queue.actions[0];
+    // shift remaining actoins
+    for (int i = 1; i < g->queue.count; i++) {
+        g->queue.actions[i-1] = g->queue.actions[i];
+    }
+    g->queue.count--;
+    return a;
 }

@@ -5,6 +5,8 @@
 
 #include "ui.h"
 
+#define INPUT_BUF_SIZE 256
+
 static WINDOW *output_win;
 static WINDOW *input_win;
 
@@ -13,27 +15,25 @@ static int input_height = 3;
 static int prompt_x = 2;
 static int prompt_y = 1;
 
+static char input_buf[INPUT_BUF_SIZE];
+static int input_len = 0;
+
 static void ui_layout(void) {
 	getmaxyx(stdscr, term_rows, term_cols);
 
 	int out_height = term_rows - input_height;
-	if (out_height < 1) {
-		out_height = 1;
-	}
+	if (out_height < 1) out_height = 1;
 
-	if (output_win) {
-		delwin(output_win);
-	}
-	if (input_win) {
-		delwin(input_win);
-	}
+	if (output_win) delwin(output_win);
+	if (input_win) delwin(input_win);
 
 	output_win = newwin(out_height, term_cols, 0, 0);
 	input_win  = newwin(input_height, term_cols, out_height, 0);
 
 	scrollok(output_win, TRUE);
 	keypad(input_win, TRUE);
-	
+	nodelay(input_win, TRUE);  // <-- non-blocking input
+
 	// terminal-like
 	wmove(output_win, 0, 0);
 	wrefresh(output_win);
@@ -76,25 +76,46 @@ void ui_print(const char *fmt, ...) {
 	wrefresh(output_win);
 }
 
-int ui_readline(char *buf, int max) {
+// NON-BLOCKING readline
+int ui_readline_nonblocking(char *buf, int max) {
 	if (!input_win) return 0;
 
+	int ch = wgetch(input_win);  // non-blocking
+	if (ch == ERR) {
+		return 0; // no input yet
+	}
+
+	if (ch == '\n' || ch == '\r') {   // Enter pressed
+		input_buf[input_len] = '\0';
+		strncpy(buf, input_buf, max);
+		int len = input_len;
+
+		// reset buffer
+		input_len = 0;
+		memset(input_buf, 0, sizeof(input_buf));
+		return len;
+	} else if (ch == KEY_BACKSPACE || ch == 127) {  // Backspace
+		if (input_len > 0) {
+			input_len--;
+			input_buf[input_len] = '\0';
+		}
+	} else if (ch >= 32 && ch <= 126) {  // printable chars
+		if (input_len < INPUT_BUF_SIZE - 1) {
+			input_buf[input_len++] = (char)ch;
+			input_buf[input_len] = '\0';
+		}
+	}
+
+	// redraw current input line
 	for (int y = 1; y < input_height - 1; y++) {
 		wmove(input_win, y, 1);
 		wclrtoeol(input_win);
 	}
+	mvwprintw(input_win, prompt_y, 1, "> %s", input_buf);
+	wmove(input_win, prompt_y, prompt_x + input_len);
+	wrefresh(input_win);
 
-	// Prompt
-	mvwprintw(input_win, prompt_y, 1, "> ");
-	wmove(input_win, prompt_y, prompt_x);
-
-	// read
-	echo();
-	wgetnstr(input_win, buf, max - 1);
-	noecho();
-
-	// return length
-	return (int)strlen(buf);
+	return 0;  // line not submitted yet
 }
 
 void ui_render(void) {
@@ -112,5 +133,7 @@ void ui_render(void) {
 
 	werase(input_win);
 	box(input_win, 0, 0);
+	mvwprintw(input_win, prompt_y, 1, "> %s", input_buf);
+	wmove(input_win, prompt_y, prompt_x + input_len);
 	wrefresh(input_win);
 }
