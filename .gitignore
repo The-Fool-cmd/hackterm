@@ -1,6 +1,7 @@
-hackterm
 *.o
 *.save
+*.html
+*.lua
 docs
 lib
-*.html
+hackterm

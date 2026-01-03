@@ -6,6 +6,7 @@
 #include "core_commands.h"
 #include "commands.h"
 #include "ui.h"
+#include "script.h"
 
 #define MAX_ARGS 100
 
@@ -29,26 +30,43 @@ typedef struct {
  * @brief Show a list of available commands.
  */
 static CommandResult cmd_help(GameState *g, int argc, char **argv);
+
 /**
  * @brief Exit the game.
  */
 static CommandResult cmd_exit(GameState *g, int argc, char **argv);
+
 /**
  * @brief Print text to the UI.
  */
 static CommandResult cmd_echo(GameState *g, int argc, char **argv);
+
 /**
  * @brief List servers connected to the current server.
  */
 static CommandResult cmd_scan(GameState *g, int argc, char **argv);
+
 /**
  * @brief Connect to a server by name.
  */
 static CommandResult cmd_connect(GameState *g, int argc, char **argv);
+
 /**
- * @brief Save the current game state.
+ * @brief Save the current game state to a file.
  */
 static CommandResult cmd_save(GameState *g, int argc, char **argv);
+
+/**
+ * @brief Show recent script log entries.
+ */
+static CommandResult cmd_scriptlog(GameState *g, int argc, char **argv);
+
+/**
+ * @brief Run a Lua script from the `scripts/` directory.
+ *
+ * Usage: `run <script> [args...]`.
+ */
+static CommandResult cmd_run(GameState *g, int argc, char **argv);
 
 static const Command commands[] = {
 	{"help",		"show this message",						cmd_help},
@@ -56,7 +74,9 @@ static const Command commands[] = {
 	{"echo",		"print text",								cmd_echo},
 	{"scan",		"list servers connected to current server", cmd_scan},
 	{"connect",		"connect to a linked server",				cmd_connect},
-	{"save",		"save the game",							cmd_save},
+    {"save", 		"save the game", 					        cmd_save},
+    {"run", 		"run a script: run <script> [args...]", 	cmd_run},
+    {"scriptlog",	"show recent script logs", 			        cmd_scriptlog},
 };
 
 static const int command_count = sizeof(commands)/sizeof(commands[0]);
@@ -159,6 +179,52 @@ static CommandResult cmd_save(GameState *g, int argc, char **argv) {
     return CMD_OK;
 }
 
+static CommandResult cmd_run(GameState *g, int argc, char **argv) {
+    (void)g;
+    if (argc < 2) {
+        ui_print("Usage: run <script> [args...]");
+        return CMD_OK;
+    }
+
+    const char *script = argv[1];
+    int sargc = argc - 2;
+    char **sargv = (sargc > 0) ? &argv[2] : NULL;
+
+    int rc = script_run(script, sargc, sargv);
+    if (rc == 0) {
+        ui_print("Script '%s' executed", script);
+    } else {
+        ui_print("Script '%s' failed (see stderr)", script);
+    }
+    return CMD_OK;
+}
+
+static CommandResult cmd_scriptlog(GameState *g, int argc, char **argv) {
+    (void)g;
+    int n = 100; /* default lines */
+    if (argc >= 2) {
+        n = atoi(argv[1]);
+        if (n <= 0) n = 100;
+    }
+
+    const char **lines = malloc(sizeof(char*) * n);
+    if (!lines) {
+        ui_print("scriptlog: out of memory");
+        return CMD_OK;
+    }
+    int got = script_log_get_recent(lines, n);
+    if (got == 0) {
+        ui_print("(no script log entries)");
+    } else {
+        for (int i = 0; i < got; i++) {
+            const char *s = lines[i];
+            ui_print("%s", s ? s : "");
+        }
+    }
+    free(lines);
+    return CMD_OK;
+}
+
 // --- Command handler ---
 CommandResult commands_run(GameState *g, const char *input) {
     char buffer[1024];
@@ -174,6 +240,19 @@ CommandResult commands_run(GameState *g, const char *input) {
         if (strcmp(argv[0], commands[i].name) == 0) {
             return commands[i].handler(g, argc, argv);
         }
+    }
+
+    /* Disallow direct API-like calls from the terminal (e.g. "game.connect").
+     * Scripts may call the API, but the interactive terminal must not.
+     */
+    if (strchr(argv[0], '.') != NULL) {
+        ui_print("Direct API calls are disabled from the terminal.");
+        return CMD_OK;
+    }
+
+    /* Give scripting subsystem a chance to handle unknown commands. */
+    if (script_handle_command(g, argv[0], argc, argv)) {
+        return CMD_OK;
     }
 
     ui_print("Unknown command: %s", argv[0]);

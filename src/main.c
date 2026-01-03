@@ -7,6 +7,7 @@
 #include "game.h"
 #include "ui.h"
 #include "commands.h"
+#include "script.h"
 
 #define TPS 10
 #define MS_PER_TICK (1000 / TPS)
@@ -33,6 +34,10 @@ int main(void) {
 	// Initialise UI and GameState
 	ui_init();
 	game_init(&game);
+	/* Initialize scripting subsystem. */
+	if (script_init(&game) != 0) {
+		ui_print("Warning: scripting subsystem failed to initialize");
+	}
 
 	ui_print("hackterm v0.1");
 	ui_print("Type 'help' to get started.");
@@ -56,6 +61,9 @@ int main(void) {
 		}
 		
 	}
+
+	/* Shutdown scripting subsystem before tearing down game state. */
+	script_shutdown();
 
 	game_shutdown(&game);
 	ui_shutdown();
