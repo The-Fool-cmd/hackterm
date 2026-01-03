@@ -1,6 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <stdbool.h>
+
 #include "server.h"
 #include "core_result.h"
 
@@ -127,7 +129,7 @@ CoreResult game_connect(GameState *g, ServerId to);
  */
 bool game_save(const GameState *g, const char *filename);
 /**
- * @brieg Simulates one tick.
+ * @brief Simulates one tick.
  * 
  * @param g Pointer to the GameState
  */

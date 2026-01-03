@@ -3,6 +3,7 @@
 #include <ctype.h>
 
 #include "game.h"
+#include "core_commands.h"
 #include "commands.h"
 #include "ui.h"
 
@@ -95,28 +96,26 @@ static CommandResult cmd_exit(GameState *g, int argc, char **argv) {
 
 static CommandResult cmd_echo(GameState *g, int argc, char **argv) {
     (void)g;
-    if (argc == 1) {
+    char *s = core_echo(argc, argv);
+    if (!s) {
         ui_print("");
-    } else {
-        // Print everything after the command name
-        char *msg = argv[1];
-        for (int i = 2; i < argc; i++) {
-            ui_print("%s ", argv[i]);
-            msg = argv[i]; // advance to last argument
-        }
-        ui_print("%s", msg);
+        return CMD_OK;
     }
+    ui_print("%s", s);
+    free(s);
     return CMD_OK;
 }
 
 static CommandResult cmd_scan(GameState *g, int argc, char **argv) {
     (void)argc; (void)argv;
-    ServerId connections[16];
-    int n = game_scan(g, connections, 16);
-
+    int n = 0;
+    ServerId *connections = core_scan(g, &n);
     ui_print("Connected servers:");
     for (int i = 0; i < n; i++) {
-        ui_print("  %s", g->servers[connections[i]].name);
+        ServerId id = connections[i];
+        Server *s = game_get_server(g, id);
+        if (s) ui_print("  %s", s->name);
+        else ui_print("  <unknown> (%d)", id);
     }
     return CMD_OK;
 }
@@ -126,27 +125,20 @@ static CommandResult cmd_connect(GameState *g, int argc, char **argv) {
         ui_print("Usage: connect <server_name>");
         return CMD_OK;
     }
-
-    ServerId target = -1;
-    for (int i = 0; i < g->server_count; i++) {
-        if (strcmp(g->servers[i].name, argv[1]) == 0) {
-            target = i;
-            break;
-        }
-    }
-
-    if (target == -1) {
-        ui_print("Server '%s' not found.", argv[1]);
-        return CMD_OK;
-    }
-
-    CoreResult cr = game_connect(g, target);
+    ServerId out_target = -1;
+    CoreResult cr = core_connect(g, argv[1], &out_target);
     if (cr == CORE_OK) {
-        ui_print("Connected to %s.", g->servers[target].name);
+        Server *s = game_get_server(g, out_target);
+        ui_print("Connected to %s.", s ? s->name : argv[1]);
+    } else if (cr == CORE_ERR_NOT_FOUND) {
+        ui_print("Server '%s' not found.", argv[1]);
     } else if (cr == CORE_ERR_NOT_LINKED) {
-        ui_print("Cannot connect to %s: not directly linked.", g->servers[target].name);
+        Server *s = game_get_server(g, out_target);
+        ui_print("Cannot connect to %s: not directly linked.", s ? s->name : argv[1]);
+    } else if (cr == CORE_ERR_INVALID_ARG) {
+        ui_print("Invalid argument to connect.");
     } else {
-        ui_print("Cannot connect to %s: error (%d).", g->servers[target].name, cr);
+        ui_print("Cannot connect to %s: error (%d).", argv[1], cr);
     }
 
     return CMD_OK;
@@ -154,8 +146,16 @@ static CommandResult cmd_connect(GameState *g, int argc, char **argv) {
 
 static CommandResult cmd_save(GameState *g, int argc, char **argv) {
     const char *file = (argc > 1) ? argv[1] : "save.save";
-    game_save(g, file);
-    ui_print("Game saved to %s", file);
+    CoreResult cr = core_save(g, file);
+    if (cr == CORE_OK) {
+        ui_print("Game saved to %s", file);
+    } else if (cr == CORE_ERR_FILE) {
+        ui_print("Failed to save game to %s: file error.", file);
+    } else if (cr == CORE_ERR_INVALID_ARG) {
+        ui_print("Failed to save game: invalid arguments.");
+    } else {
+        ui_print("Failed to save game to %s: error (%d)", file, cr);
+    }
     return CMD_OK;
 }
 
