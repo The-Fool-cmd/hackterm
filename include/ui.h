@@ -32,6 +32,14 @@ void ui_shutdown(void);
 void ui_print(const char* fmt, ...);
 
 /**
+ * @brief Set status bar text shown at the top of the UI.
+ *
+ * The status text is a short single-line message (formatted with printf
+ * semantics) that is rendered in the header area.
+ */
+void ui_set_status(const char* fmt, ...);
+
+/**
  * @brief Reads a line of input from the user.
  *
  * @param buf Buffer to store the input line.

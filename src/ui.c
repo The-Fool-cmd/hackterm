@@ -6,6 +6,7 @@
 #include "ui.h"
 
 #define INPUT_BUF_SIZE 256
+#define INPUT_HISTORY_MAX 64
 
 static WINDOW* output_win;
 static WINDOW* input_win;
@@ -17,6 +18,11 @@ static int prompt_y = 1;
 
 static char input_buf[INPUT_BUF_SIZE];
 static int input_len = 0;
+
+/* simple in-memory command history */
+static char input_history[INPUT_HISTORY_MAX][INPUT_BUF_SIZE];
+static int history_count = 0;
+static int history_pos = 0; /* index into history for navigation */
 
 static void ui_layout(void) {
     getmaxyx(stdscr, term_rows, term_cols);
@@ -87,8 +93,19 @@ int ui_readline_nonblocking(char* buf, int max) {
 
     if (ch == '\n' || ch == '\r') {  // Enter pressed
 	input_buf[input_len] = '\0';
-	strncpy(buf, input_buf, max);
-	int len = input_len;
+    strncpy(buf, input_buf, max);
+    int len = input_len;
+
+    /* push into history (if non-empty) */
+    if (len > 0) {
+        if (history_count == 0 || strcmp(input_history[(history_count - 1) % INPUT_HISTORY_MAX], input_buf) != 0) {
+            /* append */
+            strncpy(input_history[history_count % INPUT_HISTORY_MAX], input_buf, INPUT_BUF_SIZE - 1);
+            input_history[history_count % INPUT_HISTORY_MAX][INPUT_BUF_SIZE - 1] = '\0';
+            history_count++;
+        }
+        history_pos = history_count; /* reset navigation */
+    }
 
 	// reset buffer
 	input_len = 0;
@@ -99,6 +116,29 @@ int ui_readline_nonblocking(char* buf, int max) {
 	    input_len--;
 	    input_buf[input_len] = '\0';
 	}
+    } else if (ch == KEY_UP) {
+    /* navigate history backwards */
+    if (history_count > 0 && history_pos > 0) {
+        history_pos--;
+        int idx = history_pos % INPUT_HISTORY_MAX;
+        strncpy(input_buf, input_history[idx], INPUT_BUF_SIZE - 1);
+        input_buf[INPUT_BUF_SIZE - 1] = '\0';
+        input_len = strlen(input_buf);
+    }
+    } else if (ch == KEY_DOWN) {
+    /* navigate history forwards */
+    if (history_count > 0 && history_pos < history_count - 1) {
+        history_pos++;
+        int idx = history_pos % INPUT_HISTORY_MAX;
+        strncpy(input_buf, input_history[idx], INPUT_BUF_SIZE - 1);
+        input_buf[INPUT_BUF_SIZE - 1] = '\0';
+        input_len = strlen(input_buf);
+    } else if (history_pos >= history_count - 1) {
+        /* past the newest entry -> clear */
+        history_pos = history_count;
+        input_buf[0] = '\0';
+        input_len = 0;
+    }
     } else if (ch >= 32 && ch <= 126) {  // printable chars
 	if (input_len < INPUT_BUF_SIZE - 1) {
 	    input_buf[input_len++] = (char)ch;

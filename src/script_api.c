@@ -205,21 +205,33 @@ int script_api_register(lua_State* L) {
     if (!L) {
         return -1;
     }
-    /* fill in dynamic entries for readability (separate to keep functions
-     * declared close to implementation) */
-    luaL_newlib(L, game_funcs);
-    /* register additional helpers */
+    /* Create a single global root `ht` and register domain namespaces
+     * under it. This keeps the global namespace small and provides a
+     * clear place for future extensions (ht.net, ht.log, ht.fs, ...).
+     */
+    /* ht */
+    lua_newtable(L);
+
+    /* ht.net (formerly `game`) */
+    luaL_newlib(L, game_funcs); /* pushes net */
+    /* register additional helpers on net */
     lua_pushcfunction(L, l_game_get_current);
     lua_setfield(L, -2, "get_current");
     lua_pushcfunction(L, l_game_list_servers);
     lua_setfield(L, -2, "list_servers");
-    lua_setglobal(L, "game");
+    /* ht.net = net */
+    lua_setfield(L, -2, "net"); /* pops net */
 
-    /* register script table with log() */
-    lua_newtable(L);
+    /* ht.log (formerly `script`) */
+    lua_newtable(L); /* pushes log */
     lua_pushcfunction(L, l_script_log);
-    lua_setfield(L, -2, "log");
-    lua_setglobal(L, "script");
+    lua_setfield(L, -2, "info"); /* log.info = l_script_log */
+    /* ht.log = log */
+    lua_setfield(L, -2, "log"); /* pops log */
+
+    /* publish ht globally */
+    lua_setglobal(L, "ht"); /* pops ht */
+
     return 0;
 }
 

@@ -26,7 +26,18 @@ int script_api_init(GameState* g);
 /**
  * @brief Register the script-facing helpers into a Lua state.
  *
- * Creates a global `game` table and other helpers used by scripts.
+ * Registers a single global root table `ht` that contains domain namespaces
+ * used by scripts (for example `ht.net` and `ht.log`). The function also
+ * creates backward-compatible aliases (`game` -> `ht.net`, `script` ->
+ * `ht.log`) so existing scripts continue to work. Prefer using the `ht` root
+ * in new scripts.
+ *
+ * The `ht` shape (subject to extension) will look like:
+ *
+ * ht = {
+ *   net = { scan, connect, get_current, list_servers, save },
+ *   log = { info },
+ * }
  *
  * @param L Lua state to register into.
  * @return 0 on success, non-zero on error.
