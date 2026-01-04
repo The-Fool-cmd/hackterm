@@ -274,3 +274,26 @@ CommandResult commands_run(GameState* g, const char* input) {
     ui_print("Type 'help' for a list of commands.");
     return CMD_OK;
 }
+
+/* Simple accessors so the UI can implement autocomplete */
+
+/**
+ * @brief Return the number of built-in commands.
+ *
+ * Implementation detail: mirrors the static command table declared above.
+ */
+int commands_count(void) {
+    return command_count;
+}
+
+/**
+ * @brief Return the command name for a given index.
+ *
+ * Returns NULL for out-of-range indices.
+ */
+const char* commands_name(int idx) {
+    if (idx < 0 || idx >= command_count) return NULL;
+    return commands[idx].name;
+}
+
+
