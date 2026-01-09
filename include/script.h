@@ -60,16 +60,6 @@ void script_log(const char* fmt, ...);
 int script_log_get_recent(const char** out, int max);
 
 /**
- * Execute a script file with arguments.
- * If `path` contains a directory separator it is used as-is; otherwise
- * the implementation will try `./scripts/<path>`.
- *
- * @param path script filename or relative name
- * @param argc number of arguments in argv
- * @param argv array of argument strings (not including the script name)
- * @return 0 on success, non-zero on error
- */
-/**
  * @brief Execute a script file with arguments.
  *
  * If `path` contains a directory separator it is used as-is; otherwise
