@@ -4,6 +4,7 @@
 
 #include "ui.h"
 #include "ui_internal.h"
+#include "ui_view.h"
 
 void ui_init(void) {
     initscr();
@@ -23,12 +24,18 @@ void ui_init(void) {
     mouseinterval(0);
     mousemask(ALL_MOUSE_EVENTS, NULL);
 
+    /* make stdscr non-blocking for global input polling */
+    nodelay(stdscr, TRUE);
+
     ui_layout();
+    /* register builtin views for the application */
+    ui_register_builtin_views();
 }
 
 void ui_shutdown(void) {
     if (header_win) { delwin(header_win); header_win = NULL; }
     if (output_win) { delwin(output_win); output_win = NULL; }
+    if (sidebar_win) { delwin(sidebar_win); sidebar_win = NULL; }
     if (input_win) { delwin(input_win); input_win = NULL; }
     endwin();
     /* free output buffer */

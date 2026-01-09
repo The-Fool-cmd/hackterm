@@ -12,6 +12,25 @@
 extern WINDOW* header_win;
 extern WINDOW* output_win;
 extern WINDOW* input_win;
+extern WINDOW* sidebar_win;
+
+/* sidebar/menu state */
+extern int sidebar_width;
+extern const char** menu_items;
+extern int menu_count;
+extern int selected_menu;
+
+/* current view shown in the main area */
+typedef enum {
+	VIEW_HOME = 0,
+	VIEW_TERMINAL,
+	VIEW_SETTINGS,
+	VIEW_CITY,
+	VIEW_QUIT,
+	VIEW_COUNT
+} ui_view_t;
+
+extern ui_view_t current_view;
 
 extern int term_rows;
 extern int term_cols;
@@ -20,12 +39,6 @@ extern int input_height;
 extern int prompt_x;
 extern int prompt_y;
 
-extern char input_buf[INPUT_BUF_SIZE];
-extern int input_len;
-
-extern char input_history[INPUT_HISTORY_MAX][INPUT_BUF_SIZE];
-extern int history_count;
-extern int history_pos;
 
 extern char status_buf[256];
 
@@ -47,6 +60,5 @@ void ui_layout(void);
  * from the in-memory scrollback buffer. Not part of the public API.
  */
 void ui_redraw_output(void);
-void ui_redraw_output(void);
-
+void ui_redraw_output_no_update(void);
 #endif /* SRC_UI_UI_INTERNAL_H_ */

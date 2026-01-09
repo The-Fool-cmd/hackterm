@@ -12,6 +12,9 @@
 
 #define TPS 10
 #define MS_PER_TICK (1000 / TPS)
+/* Target frame rate for UI rendering (frames per second). */
+#define FPS 60
+#define MS_PER_FRAME (1000 / FPS)
 
 uint64_t current_time_ms(void) {
     struct timespec ts;
@@ -42,22 +45,37 @@ int main(void) {
     ui_print("Type 'help' to get started.");
 
     while (1) {
-	/* Render current state */
-	ui_render();
+        /* Frame start timestamp */
+        uint64_t frame_start = current_time_ms();
 
-	/* Handle user input, if there is any */
-	if (ui_readline_nonblocking(line, sizeof(line)) > 0) {
-	    if (commands_run(&game, line) == CMD_QUIT) {
-		break;
-	    }
-	}
+        /* Render current state */
+        ui_render();
 
-    uint64_t now = current_time_ms();
-    if (now - last_tick >= MS_PER_TICK) {
-	    /* Advance simulation*/
-	    game_tick(&game);
-	    last_tick += MS_PER_TICK;
-	}
+        /* Handle user input, if there is any */
+        if (ui_readline_nonblocking(line, sizeof(line)) > 0) {
+            if (commands_run(&game, line) == CMD_QUIT) {
+                break;
+            }
+        }
+
+        /* Advance simulation: catch up by running ticks until caught up */
+        uint64_t now = current_time_ms();
+        while (now - last_tick >= MS_PER_TICK) {
+            game_tick(&game);
+            last_tick += MS_PER_TICK;
+            now = current_time_ms();
+        }
+
+        /* Cap render loop to target FPS to avoid burning CPU */
+        uint64_t frame_end = current_time_ms();
+        int64_t elapsed = (int64_t)(frame_end - frame_start);
+        int64_t sleep_ms = MS_PER_FRAME - elapsed;
+        if (sleep_ms > 0) {
+            struct timespec ts;
+            ts.tv_sec = sleep_ms / 1000;
+            ts.tv_nsec = (sleep_ms % 1000) * 1000000L;
+            nanosleep(&ts, NULL);
+        }
     }
 
     /* Shutdown scripting subsystem before tearing down game state. */
