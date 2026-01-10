@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude
+CFLAGS = -Wall -Wextra -Iinclude -Ithird-party
 
 # Use pkg-config to find Lua; fall back to common linker flags if pkg-config
 # isn't available on the system. This keeps the Makefile concise and portable.
@@ -10,7 +10,7 @@ LUA_LIBS := $(shell pkg-config --libs lua5.3 lua 2>/dev/null || echo -llua -lm -
 CFLAGS += $(LUA_CFLAGS)
 LDLIBS := -lncurses $(LUA_LIBS)
 
-SRC = src/main.c src/ui/state.c src/ui/init.c src/ui/view_registry.c src/ui/output.c src/ui/input.c src/ui/render.c src/ui/views/terminal.c src/ui/views/home.c src/ui/views/settings.c src/ui/views/city.c src/ui/views/quit.c src/commands.c src/core_commands.c src/game.c src/server.c src/script.c src/script_api.c
+SRC = src/main.c src/ui/state.c src/ui/init.c src/ui/view_registry.c src/ui/output.c src/ui/input.c src/ui/render.c src/ui/views/terminal.c src/ui/views/home.c src/ui/views/settings.c src/ui/views/city.c src/ui/views/quit.c src/commands.c src/core_commands.c src/game.c src/generator.c src/server.c src/script.c src/script_api.c third-party/cJSON.c
 OBJ = $(SRC:.c=.o)
 
 .PHONY: all clean
@@ -51,4 +51,4 @@ docs-serve: docs
 
 clean:
 	rm -f $(OBJ) hackterm
-	rm -rf docs
+	rm -rf docs lib

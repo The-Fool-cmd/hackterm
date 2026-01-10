@@ -178,7 +178,7 @@ static CommandResult cmd_connect(GameState* g, int argc, char** argv) {
 }
 
 static CommandResult cmd_save(GameState* g, int argc, char** argv) {
-    const char* file = (argc > 1) ? argv[1] : "save.save";
+    const char* file = (argc > 1) ? argv[1] : "save.json";
     CoreResult cr = core_save(g, file);
     if (cr == CORE_OK) {
 	ui_print("Game saved to %s", file);

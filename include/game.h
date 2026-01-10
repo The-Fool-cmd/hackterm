@@ -129,6 +129,14 @@ CoreResult game_connect(GameState* g, ServerId to);
  */
 bool game_save(const GameState* g, const char* filename);
 /**
+ * @brief Load game state from a JSON save file.
+ *
+ * @param g Pointer to GameState to populate.
+ * @param filename Path to JSON save file.
+ * @return true on success, false on failure.
+ */
+bool game_load(GameState* g, const char* filename);
+/**
  * @brief Simulates one tick.
  *
  * @param g Pointer to the GameState

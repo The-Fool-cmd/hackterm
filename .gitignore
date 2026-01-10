@@ -1,7 +1,7 @@
 *.o
-*.save
 *.html
 *.lua
 docs
 lib
 hackterm
+save.json

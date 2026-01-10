@@ -35,7 +35,11 @@ int main(void) {
 
     // Initialise UI and GameState
     ui_init();
-    game_init(&game);
+
+    /* Try to load JSON save first (save.json). If it fails, initialize a new game. */
+    if (!game_load(&game, "save.json")) {
+        game_init(&game);
+    }
     /* Initialize scripting subsystem. */
     if (script_init(&game) != 0) {
 	ui_print("Warning: scripting subsystem failed to initialize");
